@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CaseStudy</title>
+</head>
+<body>
+<canvas id="myCanvas" height="842" width="1518" style="border: 1px solid black; background: darkgray" ></canvas>
+</body>
+</html>
+<script>
+    let canvas = document.getElementById("myCanvas");
+    let ctx = canvas.getContext("2d");
+    let isStart = false;
+    let isOver = false;
+    let score = 0;
+    let count = 0;
+    let total_count = 0;
+    let accuracy = count / total_count * 100;
+    let timeID = setInterval(autoMove,750);
+    let time = parseInt(prompt('Set timer: '));
+    setInterval(stop, 30);
+
+
+    let Bullseyeshooting = function (x,y,radius) {
+        this.x = x;
+        this.y = y;
+        this.radius = radius;
+        this.getRandom = function (){
+            this.x = Math.random() * (canvas.width - 2 * this.radius) + this.radius;
+            this.y = Math.random() * (canvas.height - 2 * this.radius) + this.radius;
+        }
+        this.createCircle = function (){
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.beginPath();
+            ctx.drawImage(backGround,0,0,canvas.width,canvas.height);
+            ctx.closePath();
+
+            ctx.beginPath();
+            ctx.fillStyle = 'white';
+            ctx.font = '25px Arial';
+            ctx.fillText('Accuracy: ' + accuracy + '%',0,20);
+            ctx.stroke();
+            ctx.closePath();
+
+            ctx.beginPath();
+            ctx.fillStyle = 'white';
+            ctx.font = '25px Arial';
+            ctx.fillText('Score: ' + score ,0,50);
+            ctx.stroke();
+            ctx.closePath();
+
+            ctx.beginPath();
+            ctx.fillStyle = 'white';
+            ctx.font = '25px Arial';
+            ctx.fillText('Timer: ' + time  ,0,80);
+            ctx.stroke();
+            ctx.closePath();
+
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+            ctx.fillStyle = 'red';
+            ctx.fill();
+            ctx.closePath();
+        }
+    }
+
+
+    let backGround = new Image();
+    backGround.src = "aimlab.png";
+
+
+    let circle = new Bullseyeshooting(canvas.width / 2, canvas.height / 2, 40);
+    circle.createCircle();
+
+
+    let canvas_x, canvas_y;
+    canvas.addEventListener("mousedown", doSomething);
+    function doSomething(evt) {
+        isStart = true;
+        if (isOver) return;
+        canvas_x = evt.pageX - 9;
+        canvas_y = evt.pageY - 9;
+        if ((canvas_x-circle.x)*(canvas_x-circle.x) + (canvas_y-circle.y)*(canvas_y-circle.y) <= circle.radius*circle.radius){
+            circle.getRandom();
+            score = score + 1000;
+            count++;
+            clearInterval(timeID);
+            timeID = setInterval(autoMove,750);
+        }total_count++;
+        accuracy = count / total_count * 100;
+        circle.createCircle();
+    }
+
+
+    function autoMove() {
+        if (isStart === false){
+            return;
+        }
+        circle.getRandom();
+        circle.createCircle();
+    }
+
+
+    function stop(){
+        if (isStart === false){
+            return;
+        }
+        if (isOver === true){
+            return;
+        }
+        if (time !== -1) return;
+        alert('Time out');
+        clearInterval(timeID);
+        isOver = true;
+    }
+
+    function countDown() {
+        if (isStart === false){
+            return;
+        }
+        time--;
+    }
+    setInterval(countDown,1000);
+
+</script>
